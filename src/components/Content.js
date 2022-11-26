@@ -25,7 +25,8 @@ import {
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { selectFiteredTodos, getTodosAsync, toggleTodoAsync, deleteTodoAsync } from "../redux/todos/todosSlice";
+import { selectFiteredTodos } from "../redux/todos/todosSlice";
+import { deleteTodoAsync, toggleTodoAsync, getTodosAsync, updateTodoAsync } from "../redux/todos/services";
 import EditTodo from "./EditTodo";
 import React from "react";
 
@@ -51,6 +52,10 @@ const Content = () => {
 
   const handleToggle = async (id, completed) => {
     dispatch(toggleTodoAsync({ id, data: { completed } }));
+  };
+
+  const handleUpdate = async (id, data) => {
+    dispatch(updateTodoAsync({ id, data }));
   };
 
   if (isLoading) {
@@ -108,7 +113,9 @@ const Content = () => {
                       width="100%"
                       maxWidth={["60vw", "60vw", "40vw", "40vw"]}
                     />
-                    <Input as={EditableInput} me="2" maxH="32px" />
+                    <Input as={EditableInput} me="2" maxH="32px"
+                      onChange={(e) => handleUpdate(todo.id, { title: e.target.value })}
+                    />
                     <EditTodo />
                   </Editable>
                 </Td>

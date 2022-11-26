@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -20,7 +20,8 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { changeFilter, clearCompleted, selectActiveFilter, selectTodos } from "../redux/todos/todosSlice";
+import { changeFilter, selectActiveFilter, selectTodos } from "../redux/todos/todosSlice";
+import { deleteCompletedTodosAsync } from '../redux/todos/services';
 
 const ContentFooter = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,15 @@ const ContentFooter = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef();
   const tabList = ["All", "Active", "Completed"];
+
+  useEffect(() => {
+    localStorage.setItem("activeFilter", activeFilter);
+  }, [activeFilter]);
+
+  const handleDeleteCompleted = () => {
+    dispatch(deleteCompletedTodosAsync());
+    onClose();
+  };
 
   return (
     <>
@@ -102,10 +112,7 @@ const ContentFooter = () => {
               </Button>
               <Button
                 colorScheme="red"
-                onClick={() => {
-                  dispatch(clearCompleted());
-                  onClose();
-                }}
+                onClick={handleDeleteCompleted}
                 ml={3}
               >
                 Delete

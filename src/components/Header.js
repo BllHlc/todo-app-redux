@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Heading, Input } from "@chakra-ui/react";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addTodoAsync } from "../redux/todos/todosSlice";
+import { addTodoAsync } from "../redux/todos/services";
 
 const Header = () => {
   const [title, setTitle] = useState("");
