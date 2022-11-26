@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Input,
   Table,
@@ -19,29 +19,66 @@ import {
   AlertDialogOverlay,
   useDisclosure,
   Button,
+  Spinner,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { toggleTodo, deleteTodo, selectFiteredTodos } from "../redux/todos/todosSlice";
+import { selectFiteredTodos, getTodosAsync, toggleTodoAsync, deleteTodoAsync } from "../redux/todos/todosSlice";
 import EditTodo from "./EditTodo";
-import ContentFooter from "./ContentFooter";
+import React from "react";
 
 const Content = () => {
-  const [selectedTodo, setSelectedTodo] = React.useState(null);
+  const [selectedTodo, setSelectedTodo] = useState(null);
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = React.useRef();
+  const cancelRef = useRef();
   const items = useSelector(selectFiteredTodos);
+  const isLoading = useSelector((state) => state.todos.isLoading);
+  const error = useSelector((state) => state.todos.error);
+  const newTodoLoading = useSelector((state) => state.todos.addNewTodoLoading);
+  const newTodoError = useSelector((state) => state.todos.addNewTodoError);
+
+  useEffect(() => {
+    dispatch(getTodosAsync());
+  }, [dispatch]);
+
   const handleDelete = (id) => {
-    dispatch(deleteTodo(id));
+    dispatch(deleteTodoAsync(id));
     onClose();
   };
 
+  const handleToggle = async (id, completed) => {
+    dispatch(toggleTodoAsync({ id, data: { completed } }));
+  };
+
+  if (isLoading) {
+    return (
+      <Spinner
+        thickness='4px'
+        speed='0.65s'
+        emptyColor='gray.200'
+        color='blue.500'
+        size='xl'
+        mt="14"
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert status="error" mt="2" >
+        <AlertIcon />
+        Error: {error}
+      </Alert>
+    );
+  }
+
   return (
     <>
-      <TableContainer w="100%">
+      <TableContainer w="100%" overflowY="auto">
         <Table variant="simple">
-          {/* <TableCaption> Todos List</TableCaption> */}
           <Tbody role="rowgroup">
             {items.map((todo) => (
               <Tr key={todo.id} role="row">
@@ -50,7 +87,7 @@ const Content = () => {
                     size="lg"
                     colorScheme="green"
                     defaultChecked={todo.completed}
-                    onChange={() => dispatch(toggleTodo(todo.id))}
+                    onChange={() => handleToggle(todo.id, !todo.completed)}
                   />
                 </Td>
                 <Td role="cell" width="80%">
@@ -89,9 +126,29 @@ const Content = () => {
                 </Td>
               </Tr>
             ))}
+            <tr>
+              <td colSpan="12"
+                style={{ textAlign: "center" }}>
+                {newTodoLoading && (
+                  <Spinner
+                    mt="2"
+                    thickness='4px'
+                    speed='0.65s'
+                    emptyColor='gray.200'
+                    color='blue.500'
+                    size='md'
+                  />
+                )}
+                {newTodoError && (
+                  <Alert status="error" mt="2" >
+                    <AlertIcon />
+                    Error: {newTodoError}
+                  </Alert>
+                )}
+              </td>
+            </tr>
           </Tbody>
         </Table>
-        <ContentFooter />
         <AlertDialog
           isOpen={isOpen}
           leastDestructiveRef={cancelRef}

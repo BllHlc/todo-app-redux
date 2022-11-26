@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Heading, Input } from "@chakra-ui/react";
 import React from "react";
-import { useDispatch } from "react-redux";
-import { addTodo } from "../redux/todos/todosSlice";
-import { nanoid } from "@reduxjs/toolkit";
+import { useDispatch, useSelector } from "react-redux";
+import { addTodoAsync } from "../redux/todos/todosSlice";
 
 const Header = () => {
   const [title, setTitle] = useState("");
   const dispatch = useDispatch();
+  const addNewTodoLoading = useSelector((state) => state.todos.addNewTodoLoading);
 
-  const handelSubmit = (e) => {
+  const addTodos = (e) => {
     e.preventDefault();
-    title && dispatch(addTodo({ id: nanoid(), title, completed: false }));
+    title && dispatch(addTodoAsync(title));
     setTitle("");
   };
 
@@ -28,8 +28,9 @@ const Header = () => {
       >
         Todos App
       </Heading>
-      <form onSubmit={handelSubmit} style={{ width: "100%" }}>
+      <form onSubmit={addTodos} style={{ width: "100%" }}>
         <Input
+          disabled={addNewTodoLoading}
           variant="flushed"
           placeholder="Add Todo"
           mt="5"
