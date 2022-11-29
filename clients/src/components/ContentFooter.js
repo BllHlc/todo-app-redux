@@ -20,10 +20,11 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { changeFilter, selectActiveFilter, selectTodos } from "../redux/todos/todosSlice";
-import { deleteCompletedTodosAsync } from '../redux/todos/services';
+import { changeFilter, selectActiveFilter, selectTodos, setTodos } from "../redux/todos/todosSlice";
+import { deleteCompletedTodosAsync, getTodosAsync } from '../redux/todos/services';
 
 const ContentFooter = () => {
+  const [search, setSearch] = React.useState("");
   const dispatch = useDispatch();
   const items = useSelector(selectTodos);
   const itemsLeft = items.filter((item) => !item.completed).length;
@@ -32,9 +33,14 @@ const ContentFooter = () => {
   const cancelRef = React.useRef();
   const tabList = ["All", "Active", "Completed"];
 
+
   useEffect(() => {
     localStorage.setItem("activeFilter", activeFilter);
-  }, [activeFilter]);
+    dispatch(setTodos(search));
+    if (search === "") {
+      dispatch(getTodosAsync());
+    }
+  }, [activeFilter, dispatch, search]);
 
   const handleDeleteCompleted = () => {
     dispatch(deleteCompletedTodosAsync());
@@ -46,7 +52,12 @@ const ContentFooter = () => {
       <Box w="100%" mt="5">
         <InputGroup>
           <InputLeftElement children={<SearchIcon />} />
-          <Input variant="flushed" placeholder="Search Todo" />
+          <Input variant="flushed" placeholder="Search Todo"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+          />
         </InputGroup>
       </Box>
       <Flex

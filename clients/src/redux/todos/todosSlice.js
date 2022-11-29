@@ -14,6 +14,9 @@ export const todosSlice = createSlice({
   reducers: {
     changeFilter: (state, action) => {
       state.activeFilter = action.payload;
+    },
+    setTodos: (state, action) => {
+      state.items = state.items.filter((item) => item.title.toLowerCase().includes(action.payload.toLowerCase()));
     }
   },
   extraReducers: {
@@ -24,6 +27,7 @@ export const todosSlice = createSlice({
     [getTodosAsync.fulfilled]: (state, action) => {
       state.isLoading = false;
       state.items = action.payload;
+
     },
     [getTodosAsync.rejected]: (state, action) => {
       state.isLoading = false;
@@ -71,5 +75,5 @@ export const selectFiteredTodos = (state) => {
 };
 export const selectActiveFilter = (state) => state.todos.activeFilter;
 
-export const { changeFilter } = todosSlice.actions;
+export const { changeFilter, setTodos } = todosSlice.actions;
 export default todosSlice.reducer;
